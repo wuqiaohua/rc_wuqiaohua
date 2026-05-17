@@ -1,0 +1,7 @@
+[vendors.crm]
+target_url = "http://mock-vendor:9000/ok"
+method = "POST"
+max_retries = 5
+
+[vendors.crm.default_headers]
+Content-Type = "application/json"

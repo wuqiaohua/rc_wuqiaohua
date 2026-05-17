@@ -1,0 +1,57 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: notifications
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-ppassword"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mock-vendor:
+    build:
+      context: .
+      args:
+        TARGET: mockvendor
+    environment:
+      MOCK_VENDOR_ADDR: ":9000"
+    ports:
+      - "9000:9000"
+
+  app:
+    build:
+      context: .
+      args:
+        TARGET: server
+    environment:
+      HTTP_ADDR: ":8080"
+      MYSQL_DSN: "root:password@tcp(mysql:3306)/notifications?parseTime=true&charset=utf8mb4&loc=UTC"
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+      VENDOR_PROFILES_PATH: "/app/config/vendor_profiles.toml"
+      RUN_WORKERS: "true"
+      OUTBOX_INTERVAL: "1s"
+      DELIVERY_HTTP_TIMEOUT: "10s"
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mock-vendor:
+        condition: service_started
