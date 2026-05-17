@@ -66,6 +66,17 @@ flowchart TB
     Worker -->|HTTP 通知| Ads
     Worker -->|HTTP 通知| CRM
     Worker -->|HTTP 通知| Stock
+
+    classDef system fill:#f3f4f6,stroke:#6b7280,stroke-width:1.4px,color:#111827;
+    classDef service fill:#e5e7eb,stroke:#4b5563,stroke-width:1.6px,color:#111827;
+    classDef infra fill:#d1d5db,stroke:#374151,stroke-width:1.6px,color:#111827;
+    class BizA,BizB,BizC,Ads,CRM,Stock system;
+    class API,Worker service;
+    class Store,Queue infra;
+    style Internal fill:#f9fafb,stroke:#9ca3af,stroke-width:1px,color:#111827;
+    style Notify fill:#f3f4f6,stroke:#6b7280,stroke-width:1.2px,color:#111827;
+    style External fill:#f9fafb,stroke:#9ca3af,stroke-width:1px,color:#111827;
+    linkStyle default stroke:#6b7280,stroke-width:1px;
 ```
 
 核心组件：
