@@ -16,7 +16,53 @@ AI Coding 作业：API 通知系统设计与实现。
 
 图中的“消息队列”是架构抽象，本项目 MVP 使用 RabbitMQ 实现；“通知投递服务”在架构层面是独立 Worker 服务，负责消费任务并投递外部 API。
 
-![alt text](doc/image/架构图.png)
+```mermaid
+flowchart TB
+    subgraph Internal["企业内部业务系统"]
+        direction LR
+        BizA["广告注册系统"]
+        BizB["订阅支付系统"]
+        BizC["订单交易系统"]
+    end
+
+    subgraph Notify["内部 API 通知服务"]
+        direction TB
+        API["通知接入服务<br/>接收任务 / 查询状态"]
+        Store["任务存储<br/>任务状态 / Outbox"]
+        Queue["消息队列<br/>RabbitMQ 实现"]
+        Worker["通知投递服务<br/>独立 Worker"]
+    end
+
+    subgraph External["外部供应商系统"]
+        direction LR
+        Ads["广告系统 API"]
+        CRM["CRM API"]
+        Stock["库存系统 API"]
+    end
+
+    BizA -->|提交通知任务| API
+    BizB -->|提交通知任务| API
+    BizC -->|提交通知任务| API
+    API -->|创建任务 / 查询状态| Store
+    Store -->|发布待投递任务| Queue
+    Queue -->|消费任务| Worker
+    Worker -->|更新投递状态| Store
+    Worker -->|失败重试 / 死信| Queue
+    Worker -->|HTTP 通知| Ads
+    Worker -->|HTTP 通知| CRM
+    Worker -->|HTTP 通知| Stock
+
+    classDef system fill:#f3f4f6,stroke:#6b7280,stroke-width:1.4px,color:#111827;
+    classDef service fill:#e5e7eb,stroke:#4b5563,stroke-width:1.6px,color:#111827;
+    classDef infra fill:#d1d5db,stroke:#374151,stroke-width:1.6px,color:#111827;
+    class BizA,BizB,BizC,Ads,CRM,Stock system;
+    class API,Worker service;
+    class Store,Queue infra;
+    style Internal fill:#f9fafb,stroke:#9ca3af,stroke-width:1px,color:#111827;
+    style Notify fill:#f3f4f6,stroke:#6b7280,stroke-width:1.2px,color:#111827;
+    style External fill:#f9fafb,stroke:#9ca3af,stroke-width:1px,color:#111827;
+    linkStyle default stroke:#6b7280,stroke-width:1px;
+```
 
 ## 核心时序
 
