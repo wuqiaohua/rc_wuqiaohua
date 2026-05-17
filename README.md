@@ -194,13 +194,6 @@ flowchart LR
 
     Succeeded --> End
     Failed --> End
-
-    classDef active fill:#1f2937,stroke:#d1d5db,stroke-width:1.4px,color:#f9fafb;
-    classDef terminal fill:#111827,stroke:#93c5fd,stroke-width:1.4px,color:#f9fafb;
-    classDef retry fill:#3b2f1f,stroke:#fbbf24,stroke-width:1.4px,color:#fff7ed;
-    class Pending,Queued,Processing active;
-    class Retrying retry;
-    class Succeeded,Failed terminal;
 ```
 
 ## 可靠性与失败处理
